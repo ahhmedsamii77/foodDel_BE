@@ -1,17 +1,28 @@
 import nodemailer from 'nodemailer';
 import { eventEmitter } from './events.js';
 
-// ── Transporter ───────────────────────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
-  },
-});
+// ── Transporter (lazy) ────────────────────────────────────────────────────────
+// Created on first use — avoids crashing at module load if env vars aren't set
+let _transporter = null;
+
+function getTransporter() {
+  if (!_transporter) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error('EMAIL_USER and EMAIL_PASS environment variables are required');
+    }
+    _transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+  }
+  return _transporter;
+}
 
 const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"Food Delivery 🍕" <${process.env.EMAIL_USER}>`,
     to,
     subject,

@@ -1,16 +1,21 @@
 import express from 'express';
 import { addFood, listFood, removeFood } from '../controllers/foodController.js';
 import multer from 'multer';
+
 const foodRouter = express.Router();
-// Image Store Engine
-const storage = multer.diskStorage({
-  destination: 'uploads',
-  filename: (req ,  file , cb)=>{
-    return cb(null,`${Date.now()}${file.originalname}`);
-  }
-});
-const upload = multer({storage: storage});
-foodRouter.post('/add', upload.single('image'), addFood);
-foodRouter.get('/list',listFood);
+
+// Use memory storage — Vercel has a read-only filesystem, diskStorage would crash
+const upload = multer({ storage: multer.memoryStorage() });
+
+foodRouter.post('/add', (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) return res.status(400).json({ success: false, message: err.message });
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    next();
+  });
+}, addFood);
+
+foodRouter.get('/list', listFood);
 foodRouter.post('/remove', removeFood);
+
 export default foodRouter;

@@ -1,44 +1,47 @@
 import foodModel from "../models/foodModel.js";
-import fs from "fs";
 
-//  add food item
+//  add food item — image stored as base64 data URL (Vercel has no persistent disk)
 const addFood = async (req, res) => {
-  let image_filename = `${req.file.filename}`;
-  const food = new foodModel({
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    image: image_filename,
-    category: req.body.category,
-  });
   try {
+    if (!req.file) {
+      return res.json({ success: false, message: "Image file is required" });
+    }
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    const food = new foodModel({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      image: base64Image,
+      category: req.body.category,
+    });
     await food.save();
     res.json({ success: true, message: "Food added successfully" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: "Error" });
   }
 };
+
 // all food list
 const listFood = async (req, res) => {
   try {
     const foods = await foodModel.find({});
     res.json({ success: true, data: foods });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: "Error" });
   }
 };
-// remove food item 
-const removeFood = async (req,res)=>{
+
+// remove food item
+const removeFood = async (req, res) => {
   try {
-     const food = await foodModel.findById(req.body.id);
-     fs.unlink(`uploads/${food.image}`,()=>{});
-     await foodModel.findByIdAndDelete(req.body.id);
-     res.json({success: true , message: 'Food removed successfully'});
+    await foodModel.findByIdAndDelete(req.body.id);
+    res.json({ success: true, message: "Food removed successfully" });
   } catch (error) {
-    console.log(error);
-    res.json({success: false , message: 'Error'});
+    console.error(error);
+    res.json({ success: false, message: "Error" });
   }
-}
-export { addFood, listFood , removeFood };
+};
+
+export { addFood, listFood, removeFood };
