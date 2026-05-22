@@ -1,4 +1,6 @@
-import { models, Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
+
+const { model, models, Schema } = mongoose;
 
 const revokeTokenSchema = new Schema(
   {
