@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 const { model, models, Schema } = mongoose;
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { eventEmitter } from '../utils/events.js';
 
 export const OtpTypeEnum = {

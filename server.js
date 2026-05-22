@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
 
 // Local dev: listen on port
 // Vercel: export app as default (no listen needed)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);
   });

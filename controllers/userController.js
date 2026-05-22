@@ -1,7 +1,7 @@
 import userModel from '../models/userModel.js';
 import { OtpModel, OtpTypeEnum } from '../models/otpModel.js';
 import { revokeTokenModel } from '../models/revokeTokenModel.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
