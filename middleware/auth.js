@@ -1,22 +1,36 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 const authMiddleware = async (req, res, next) => {
-  const { token } = req.headers;
+  const { authorization } = req.headers;
 
-  if (!token) {
-    return res.json({
+  if (!authorization) {
+    return res.status(401).json({
       success: false,
-      message: "Not authorized, please login again",
+      message: 'Authorization header is required',
+    });
+  }
+
+  const [prefix, token] = authorization.split(' ');
+
+  if (!prefix || !token || prefix !== 'Bearer') {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token format. Use: Bearer <token>',
     });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-    req.userId = decoded.id; // ✅ حطينا userId هنا
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
+    );
+    req.userId = decoded.id;
+    req.decoded = decoded;
     next();
   } catch (error) {
-    console.log(error);
-    return res.status(401).json({ success: false, message: "Invalid token" }); // ✅ كانت req.json غلط
+    console.error('Auth error:', error.message);
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }
 };
+
 export default authMiddleware;

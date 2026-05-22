@@ -1,10 +1,7 @@
-# 📦 ملفات الباكج
 node_modules/
 
-# 🔐 ملفات السرية
 .env
 
-# 🗑 ملفات اللوج أو التراك المؤقت
 npm-debug.log
 .DS_Store
 .env 
