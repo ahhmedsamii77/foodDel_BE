@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-import { eventEmitter } from './events.js';
 
 // ── Transporter (lazy) ────────────────────────────────────────────────────────
 let _transporter = null;
@@ -20,7 +19,7 @@ function getTransporter() {
   return _transporter;
 }
 
-const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, html }) => {
   await getTransporter().sendMail({
     from: `"FoodDel 🍕" <${process.env.EMAIL_USER}>`,
     to,
@@ -141,8 +140,8 @@ const divider = `
     <tr><td style="border-top: 1px solid ${COLORS.border}; height: 1px; font-size: 0; line-height: 0;">&nbsp;</td></tr>
   </table>`;
 
-// ── Event: CONFIRM_EMAIL ───────────────────────────────────────────────────────
-eventEmitter.on('CONFIRM_EMAIL', async ({ email, otp }) => {
+// ── Send Confirm Email ───────────────────────────────────────────────────────
+export const sendConfirmEmail = async (email, otp) => {
   console.log(`\n========================================`);
   console.log(`[OTP CONFIRM_EMAIL] Sending OTP to ${email}...`);
   console.log(`========================================\n`);
@@ -201,10 +200,10 @@ eventEmitter.on('CONFIRM_EMAIL', async ({ email, otp }) => {
     console.log(`Confirmation OTP for ${email} is: ${otp}`);
     console.log(`========================================\n`);
   }
-});
+};
 
-// ── Event: FORGOT_PASSWORD ─────────────────────────────────────────────────────
-eventEmitter.on('FORGOT_PASSWORD', async ({ email, otp }) => {
+// ── Send Forgot Password Email ─────────────────────────────────────────────────────
+export const sendForgotPasswordEmail = async (email, otp) => {
   console.log(`\n========================================`);
   console.log(`[OTP FORGOT_PASSWORD] Sending password reset OTP to ${email}...`);
   console.log(`========================================\n`);
@@ -263,4 +262,4 @@ eventEmitter.on('FORGOT_PASSWORD', async ({ email, otp }) => {
     console.log(`Password Reset OTP for ${email} is: ${otp}`);
     console.log(`========================================\n`);
   }
-});
+};
