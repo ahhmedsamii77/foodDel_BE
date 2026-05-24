@@ -1,9 +1,9 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
 import foodRouter from './routes/foodRoute.js';
 import userRouter from './routes/userRoute.js';
-import 'dotenv/config';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import './utils/mailer.js'; // Register email event listeners
@@ -18,8 +18,19 @@ app.use(
   cors(),
 );
 
-// DB connection
-connectDB();
+// DB connection middleware for serverless robustness
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB Connection Middleware Error:', err.message);
+    res.status(500).json({ success: false, message: 'Database connection failed: ' + err.message });
+  }
+});
+
+// Trigger initial connection (non-blocking on startup)
+connectDB().catch((err) => console.error('Initial DB connection failed:', err.message));
 
 // API endpoints
 app.use('/api/food', foodRouter);
