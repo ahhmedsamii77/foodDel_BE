@@ -83,4 +83,29 @@ const userOrders = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders };
+// ── Admin: All Orders ─────────────────────────────────────────────────────────
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({}).sort({ date: -1 });
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.error('getAllOrders error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ── Admin: Update Order Status ────────────────────────────────────────────────
+
+const updateOrderStatus = async (req, res) => {
+  const { orderId, status } = req.body;
+  try {
+    await orderModel.findByIdAndUpdate(orderId, { status });
+    res.json({ success: true, message: 'Order status updated' });
+  } catch (error) {
+    console.error('updateOrderStatus error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export { placeOrder, verifyOrder, userOrders, getAllOrders, updateOrderStatus };
