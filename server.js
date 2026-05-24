@@ -15,11 +15,7 @@ const port = process.env.PORT || 4000;
 // Middleware
 app.use(express.json());
 app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  }),
+  cors(),
 );
 
 // DB connection
