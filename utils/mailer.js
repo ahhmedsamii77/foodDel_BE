@@ -143,6 +143,9 @@ const divider = `
 
 // ── Event: CONFIRM_EMAIL ───────────────────────────────────────────────────────
 eventEmitter.on('CONFIRM_EMAIL', async ({ email, otp }) => {
+  console.log(`\n========================================`);
+  console.log(`[OTP CONFIRM_EMAIL] Sending OTP to ${email}...`);
+  console.log(`========================================\n`);
   try {
     await sendEmail({
       to: email,
@@ -190,13 +193,21 @@ eventEmitter.on('CONFIRM_EMAIL', async ({ email, otp }) => {
         `,
       }),
     });
+    console.log(`Email successfully sent to ${email}`);
   } catch (err) {
     console.error('Failed to send confirmation email:', err.message);
+    console.log(`\n========================================`);
+    console.log(`[DEVELOPMENT OTP BACKUP]`);
+    console.log(`Confirmation OTP for ${email} is: ${otp}`);
+    console.log(`========================================\n`);
   }
 });
 
 // ── Event: FORGOT_PASSWORD ─────────────────────────────────────────────────────
 eventEmitter.on('FORGOT_PASSWORD', async ({ email, otp }) => {
+  console.log(`\n========================================`);
+  console.log(`[OTP FORGOT_PASSWORD] Sending password reset OTP to ${email}...`);
+  console.log(`========================================\n`);
   try {
     await sendEmail({
       to: email,
@@ -244,7 +255,12 @@ eventEmitter.on('FORGOT_PASSWORD', async ({ email, otp }) => {
         `,
       }),
     });
+    console.log(`Email successfully sent to ${email}`);
   } catch (err) {
     console.error('Failed to send password reset email:', err.message);
+    console.log(`\n========================================`);
+    console.log(`[DEVELOPMENT OTP BACKUP]`);
+    console.log(`Password Reset OTP for ${email} is: ${otp}`);
+    console.log(`========================================\n`);
   }
 });

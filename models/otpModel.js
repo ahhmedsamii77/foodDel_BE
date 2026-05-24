@@ -27,16 +27,24 @@ otpSchema.pre('save', async function () {
   if (this.isModified('code')) {
     this._plainCode = this.code;
     this.code = await bcrypt.hash(this.code, 10);
-    await this.populate({ path: 'userId', select: 'email' });
   }
 });
 
 otpSchema.post('save', async function () {
   if (this._wasNew) {
-    eventEmitter.emit(this.type, {
-      email: this.userId.email,
-      otp: this._plainCode,
-    });
+    try {
+      const user = await mongoose.model('user').findById(this.userId);
+      if (user && user.email) {
+        eventEmitter.emit(this.type, {
+          email: user.email,
+          otp: this._plainCode,
+        });
+      } else {
+        console.error('OTP post-save hook: User or user email not found for ID', this.userId);
+      }
+    } catch (err) {
+      console.error('OTP post-save hook error:', err.message);
+    }
   }
 });
 
