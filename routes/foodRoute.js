@@ -1,5 +1,5 @@
 import express from 'express';
-import { addFood, listFood, removeFood } from '../controllers/foodController.js';
+import { addFood, listFood, removeFood, getFoodById } from '../controllers/foodController.js';
 import adminMiddleware from '../middleware/admin.js';
 import multer from 'multer';
 
@@ -10,6 +10,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Public
 foodRouter.get('/list', listFood);
+foodRouter.get('/:id', getFoodById);
 
 // Admin only
 foodRouter.post('/add', adminMiddleware, (req, res, next) => {

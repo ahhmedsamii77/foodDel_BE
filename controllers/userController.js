@@ -340,6 +340,42 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// ── Update Profile ────────────────────────────────────────────────────────────
+
+const updateProfile = async (req, res) => {
+  const { name } = req.body;
+  try {
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Name must be at least 2 characters' });
+    }
+    const user = await userModel.findByIdAndUpdate(
+      req.userId,
+      { name: name.trim() },
+      { new: true, select: '-password -cartData' }
+    );
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: { user } });
+  } catch (error) {
+    console.error('updateProfile error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ── Admin: Get All Users ──────────────────────────────────────────────────────
+
+const adminGetAllUsers = async (req, res) => {
+  try {
+    const users = await userModel
+      .find({})
+      .select('-password -cartData')
+      .sort({ createdAt: -1 });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('adminGetAllUsers error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 export {
   loginUser,
   registerUser,
@@ -351,4 +387,6 @@ export {
   forgotPassword,
   verifyResetPasswordOtp,
   resetPassword,
+  updateProfile,
+  adminGetAllUsers,
 };

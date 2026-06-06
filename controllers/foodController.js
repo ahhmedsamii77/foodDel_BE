@@ -44,4 +44,16 @@ const removeFood = async (req, res) => {
   }
 };
 
-export { addFood, listFood, removeFood };
+// get single food by id
+const getFoodById = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.params.id);
+    if (!food) return res.status(404).json({ success: false, message: 'Food not found' });
+    res.json({ success: true, data: food });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Error' });
+  }
+};
+
+export { addFood, listFood, removeFood, getFoodById };

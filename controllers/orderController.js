@@ -108,4 +108,60 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders, getAllOrders, updateOrderStatus };
+// ── Admin: Analytics ──────────────────────────────────────────────────────────
+
+const getAnalytics = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ payment: true }).sort({ date: 1 });
+
+    // Revenue by day (last 14 days)
+    const now = new Date();
+    const revenueByDay = [];
+    for (let i = 13; i >= 0; i--) {
+      const day = new Date(now);
+      day.setDate(now.getDate() - i);
+      day.setHours(0, 0, 0, 0);
+      const nextDay = new Date(day);
+      nextDay.setDate(day.getDate() + 1);
+
+      const dayOrders = orders.filter(o => {
+        const d = new Date(o.date);
+        return d >= day && d < nextDay;
+      });
+
+      revenueByDay.push({
+        date: day.toISOString().split('T')[0],
+        revenue: dayOrders.reduce((s, o) => s + o.amount, 0),
+        count: dayOrders.length,
+      });
+    }
+
+    // Orders by status (all orders)
+    const allOrders = await orderModel.find({});
+    const statusMap = {};
+    allOrders.forEach(o => {
+      statusMap[o.status] = (statusMap[o.status] || 0) + 1;
+    });
+    const ordersByStatus = Object.entries(statusMap).map(([status, count]) => ({ status, count }));
+
+    // Top 5 items by quantity sold
+    const itemMap = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (!itemMap[item.name]) itemMap[item.name] = { name: item.name, quantity: 0, revenue: 0 };
+        itemMap[item.name].quantity += item.quantity;
+        itemMap[item.name].revenue += item.price * item.quantity;
+      });
+    });
+    const topItems = Object.values(itemMap)
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    res.json({ success: true, data: { revenueByDay, ordersByStatus, topItems } });
+  } catch (error) {
+    console.error('getAnalytics error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export { placeOrder, verifyOrder, userOrders, getAllOrders, updateOrderStatus, getAnalytics };

@@ -10,8 +10,11 @@ import {
   forgotPassword,
   verifyResetPasswordOtp,
   resetPassword,
+  updateProfile,
+  adminGetAllUsers,
 } from '../controllers/userController.js';
 import authMiddleware from '../middleware/auth.js';
+import adminMiddleware from '../middleware/admin.js';
 
 const userRouter = express.Router();
 
@@ -29,6 +32,10 @@ userRouter.get('/refresh-token', refreshToken);
 
 // Protected routes
 userRouter.get('/me', authMiddleware, getMe);
+userRouter.put('/profile', authMiddleware, updateProfile);
 userRouter.post('/logout', authMiddleware, logout);
+
+// Admin routes
+userRouter.get('/all', adminMiddleware, adminGetAllUsers);
 
 export default userRouter;
