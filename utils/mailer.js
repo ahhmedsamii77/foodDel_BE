@@ -19,12 +19,21 @@ function getTransporter() {
   return _transporter;
 }
 
-export const sendEmail = async ({ to, subject, html }) => {
-  await getTransporter().sendMail({
-    from: `"FoodDel 🍕" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
+export const sendEmail = ({ to, subject, html }) => {
+  return new Promise((resolve, reject) => {
+    const transporter = getTransporter();
+    transporter.sendMail(
+      {
+        from: `"FoodDel 🍕" <${process.env.EMAIL_USER}>`,
+        to,
+        subject,
+        html,
+      },
+      (err, info) => {
+        if (err) return reject(err);
+        resolve(info);
+      }
+    );
   });
 };
 
