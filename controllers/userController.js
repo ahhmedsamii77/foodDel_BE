@@ -5,7 +5,6 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendConfirmEmail, sendForgotPasswordEmail } from '../utils/mailer.js';
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 
@@ -36,18 +35,7 @@ async function sendOtp(userId, type = OtpTypeEnum.CONFIRM_EMAIL) {
     userId,
     type,
     expireAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-  });
-
-  const user = await userModel.findById(userId);
-  if (user && user.email) {
-    if (type === OtpTypeEnum.CONFIRM_EMAIL) {
-      await sendConfirmEmail(user.email, otp);
-    } else if (type === OtpTypeEnum.FORGOT_PASSWORD) {
-      await sendForgotPasswordEmail(user.email, otp);
-    }
-  } else {
-    console.error('sendOtp helper: User or user email not found for ID', userId);
-  }
+  }); // ← email sent automatically via OTP post-save hook
 }
 
 // ── Register ──────────────────────────────────────────────────────────────────
