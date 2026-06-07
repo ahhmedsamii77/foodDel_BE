@@ -14,14 +14,14 @@ function createToken(payload, secret, expiresIn) {
   return { token, jti };
 }
 
-function createLoginCredentials(userId, role) {
+function createLoginCredentials(userId) {
   const { token: access_token } = createToken(
-    { id: userId, role },
+    { id: userId },
     process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET,
     '15m',
   );
   const { token: refresh_token, jti: refresh_jti } = createToken(
-    { id: userId, role },
+    { id: userId },
     process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET + '_refresh',
     '7d',
   );
@@ -142,7 +142,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const { access_token, refresh_token } = createLoginCredentials(user._id, user.role);
+    const { access_token, refresh_token } = createLoginCredentials(user._id);
     res.json({
       success: true,
       data: { credentials: { access_token, refresh_token }, role: user.role },
@@ -188,7 +188,7 @@ const refreshToken = async (req, res) => {
       expireIn: new Date(decoded.exp * 1000),
     });
 
-    const { access_token, refresh_token: new_refresh_token } = createLoginCredentials(user._id, user.role);
+    const { access_token, refresh_token: new_refresh_token } = createLoginCredentials(user._id);
     res.json({
       success: true,
       data: { credentials: { access_token, refresh_token: new_refresh_token } },
